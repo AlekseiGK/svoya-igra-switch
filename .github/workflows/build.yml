@@ -12,10 +12,28 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Диагностика окружения
+        run: |
+          echo "== whoami =="; whoami || true
+          echo "== DEVKITPRO =="; echo "$DEVKITPRO"
+          echo "== which pacman / dkp-pacman / sudo =="
+          which pacman || echo "pacman НЕ найден"
+          which dkp-pacman || echo "dkp-pacman НЕ найден"
+          which sudo || echo "sudo НЕ найден"
+          echo "== ls \$DEVKITPRO =="; ls -la "$DEVKITPRO" || true
+
       - name: Установить SDL2-порты для Switch
         run: |
-          (sudo dkp-pacman -Sy --noconfirm switch-sdl2 switch-sdl2_ttf) || \
-          (dkp-pacman -Sy --noconfirm switch-sdl2 switch-sdl2_ttf)
+          set -x
+          if command -v dkp-pacman >/dev/null 2>&1; then PACMAN=dkp-pacman
+          elif command -v pacman >/dev/null 2>&1; then PACMAN=pacman
+          else echo "НИ pacman, НИ dkp-pacman не найдены" >&2; exit 1
+          fi
+          if command -v sudo >/dev/null 2>&1; then
+            sudo "$PACMAN" -Sy --noconfirm switch-sdl2 switch-sdl2_ttf
+          else
+            "$PACMAN" -Sy --noconfirm switch-sdl2 switch-sdl2_ttf
+          fi
 
       - name: Скачать шрифты DejaVu Sans (кириллица)
         run: |
