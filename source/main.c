@@ -82,9 +82,21 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+    /* Программный рендерер — рисуем только простые прямоугольники и текст,
+     * аппаратное ускорение не нужно, а на некоторых прошивках путь через
+     * EGL/GPU-рендерер приводит к падению при старте. */
+    SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
     if (!renderer) {
-        renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
+        renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+    }
+    if (!renderer) {
+        fprintf(stderr, "SDL_CreateRenderer failed: %s\n", SDL_GetError());
+        SDL_DestroyWindow(window);
+        SDL_Quit();
+#ifdef __SWITCH__
+        romfsExit();
+#endif
+        return 1;
     }
 
     char font_regular[256], font_bold[256];
