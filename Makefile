@@ -29,7 +29,7 @@ export APP_VERSION
 ARCH    :=  -march=armv8-a+crc+crypto -mtune=cortex-a57 -mtp=soft -fPIE
 
 SDL_CFLAGS  :=  $(shell PKG_CONFIG_PATH=$(PORTLIBS)/lib/pkgconfig:$(LIBNX)/lib/pkgconfig pkg-config --cflags sdl2 SDL2_ttf)
-SDL_LIBS    :=  $(shell PKG_CONFIG_PATH=$(PORTLIBS)/lib/pkgconfig:$(LIBNX)/lib/pkgconfig pkg-config --libs sdl2 SDL2_ttf)
+SDL_LIBS    :=  $(shell PKG_CONFIG_PATH=$(PORTLIBS)/lib/pkgconfig:$(LIBNX)/lib/pkgconfig pkg-config --static --libs sdl2 SDL2_ttf)
 
 CFLAGS  :=  -g -Wall -O2 -ffunction-sections $(ARCH) $(SDL_CFLAGS) -D__SWITCH__
 CFLAGS  +=  $(INCLUDE)
@@ -39,7 +39,7 @@ CXXFLAGS    :=  $(CFLAGS) -fno-rtti -fno-exceptions -std=gnu++17
 ASFLAGS :=  -g $(ARCH)
 LDFLAGS  =  -specs=$(DEVKITPRO)/libnx/switch.specs -g $(ARCH) -Wl,-Map,$(notdir $*.map)
 
-LIBS    :=  $(SDL_LIBS) -lnx
+LIBS    :=  $(SDL_LIBS) -lnx -lm
 
 #---------------------------------------------------------------------------------
 LIBDIRS :=  $(PORTLIBS) $(LIBNX)
